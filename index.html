@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>wyft 초대하기</title>
     <style>
+        /* (기존 스타일 그대로 유지) */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
         }
-        
         body {
             background: #222222;
             height: 100vh;
@@ -23,7 +23,6 @@
             text-align: center;
             padding: 20px;
         }
-        
         .container {
             background-color: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
@@ -34,7 +33,6 @@
             width: 90%;
             border: 1px solid rgba(205, 255, 98, 0.2);
         }
-        
         .logo {
             width: 80px;
             height: 80px;
@@ -47,24 +45,20 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             border: 2px solid #CDFF62;
         }
-        
         .logo svg {
             width: 50px;
             height: 50px;
         }
-        
         h1 {
             font-size: 24px;
             font-weight: 700;
             margin-bottom: 10px;
         }
-        
         p {
             font-size: 16px;
             margin-bottom: 30px;
             opacity: 0.9;
         }
-        
         .loader {
             display: inline-block;
             width: 50px;
@@ -75,12 +69,10 @@
             animation: spin 1s ease-in-out infinite;
             margin-bottom: 20px;
         }
-        
         .store-buttons {
             display: none;
             margin-top: 30px;
         }
-        
         .btn {
             background-color: #CDFF62;
             color: #222222;
@@ -95,43 +87,34 @@
             display: inline-block;
             text-decoration: none;
         }
-        
         .btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 0 20px rgba(205, 255, 98, 0.4);
             background-color: #d8ff7e;
         }
-        
         .android-btn, .ios-btn {
             display: none;
         }
-        
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
-        
         .fadeIn {
             animation: fadeIn 0.5s ease-in-out forwards;
         }
-        
         @media (max-width: 480px) {
             .container {
                 padding: 30px;
             }
-            
             h1 {
                 font-size: 20px;
             }
-            
             p {
                 font-size: 14px;
             }
-            
             .btn {
                 padding: 10px 20px;
                 font-size: 14px;
@@ -141,51 +124,53 @@
     <script>
         function getDeviceType() {
             const userAgent = navigator.userAgent;
-            if (/android/i.test(userAgent)) {
-                return 'android';
-            } else if (/iphone|ipad|ipod|macintosh.*mac os x/i.test(userAgent)) {
-                return 'ios';
-            } else {
-                return 'unknown';
-            }
+            if (/android/i.test(userAgent)) return 'android';
+            if (/iphone|ipad|ipod|macintosh.*mac os x/i.test(userAgent)) return 'ios';
+            return 'unknown';
         }
-        
-        function redirectToStore() {
+
+        function redirectToAppOrStore() {
             const androidPackageName = 'com.agspace.trkit&hl=ko';
             const androidStoreLink = 'https://play.google.com/store/apps/details?id=' + androidPackageName;
             const iosAppStoreLink = 'https://apps.apple.com/app/1627691040';
-            const appUrlScheme = 'wyft://invite?';
+            const appUrlScheme = 'wyft://invite?'; // 필요시 파라미터 추가
+
             const deviceType = getDeviceType();
 
-            // 앱 실행 시도
+            // 앱 열기 시도
             window.location.href = appUrlScheme;
-        
-            // 2.5초 후에도 페이지에 남아있으면 앱이 설치되지 않은 것으로 간주
+
             const storeRedirectTimeout = setTimeout(() => {
+                // 앱 열기 실패 시 fallback UI 표시
                 document.querySelector('.loader-container').style.display = 'none';
                 document.querySelector('.store-buttons').style.display = 'block';
                 document.querySelector('.store-buttons').classList.add('fadeIn');
-        
+
                 if (deviceType === 'android') {
                     document.getElementById('android-link').href = androidStoreLink;
+                    document.querySelector('.android-btn').style.display = 'inline-block';
                 } else if (deviceType === 'ios') {
                     document.getElementById('ios-link').href = iosAppStoreLink;
+                    document.querySelector('.ios-btn').style.display = 'inline-block';
                 } else {
+                    // 모든 링크 노출
                     document.getElementById('android-link').href = androidStoreLink;
                     document.getElementById('ios-link').href = iosAppStoreLink;
+                    document.querySelector('.android-btn').style.display = 'inline-block';
+                    document.querySelector('.ios-btn').style.display = 'inline-block';
                 }
             }, 2500);
-        
-            // 앱이 열려 페이지가 background로 가면 타이머 중단
+
             document.addEventListener('visibilitychange', () => {
                 if (document.hidden) {
                     clearTimeout(storeRedirectTimeout);
                 }
             });
-        }       
-        window.onload = function() {
-            setTimeout(redirectToStore, 1000);
         }
+
+        window.onload = function() {
+            setTimeout(redirectToAppOrStore, 500);
+        };
     </script>
 </head>
 <body>
@@ -197,12 +182,12 @@
         </div>
         <h1>앱으로 이동 중입니다</h1>
         <p>앱이 설치되어 있으면 자동으로 열립니다. 아직 설치하지 않으셨다면 스토어로 이동됩니다.</p>
-        
+
         <div class="loader-container">
             <div class="loader"></div>
             <p>잠시만 기다려주세요...</p>
         </div>
-        
+
         <div class="store-buttons">
             <p>앱이 자동으로 열리지 않나요?</p>
             <a id="android-link" href="#" class="btn android-btn">
