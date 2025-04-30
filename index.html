@@ -130,9 +130,12 @@
         }
 
         function redirectToAppOrStore() {
-            const androidPackageName = 'com.agspace.trkit&hl=ko';
+            const userLang = navigator.language || navigator.userLanguage;
+            const countryCode = userLang.split('-')[1]?.toLowerCase() || 'kr'; // 기본값 kr
+
+            const androidPackageName = `com.agspace.trkit&hl=${countryCode}`;
             const androidStoreLink = 'https://play.google.com/store/apps/details?id=' + androidPackageName;
-            const iosAppStoreLink = 'https://apps.apple.com/app/1627691040';
+            const iosAppStoreLink = `https://apps.apple.com/${countryCode}/app/id1627691040`;
             const appUrlScheme = 'wyft://invite?'; // 필요시 파라미터 추가
 
             const deviceType = getDeviceType();
