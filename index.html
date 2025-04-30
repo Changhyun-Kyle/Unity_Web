@@ -156,57 +156,33 @@
             const iosAppStoreLink = 'https://apps.apple.com/app/1627691040';
             const appUrlScheme = 'wyft://invite?';
             const deviceType = getDeviceType();
-            
-            // iOS 기기인 경우 바로 App Store로 리다이렉트
-            if (deviceType === 'ios') {
-                window.location.href = iosAppStoreLink;
-                return;
-            }
-            
-            // 안드로이드 기기인 경우 바로 Play Store로 리다이렉트
-            if (deviceType === 'android') {
-                window.location.href = androidStoreLink;
-                return;
-            }
-            
-            // 디바이스 타입에 따라 버튼 표시
-            if (deviceType === 'android') {
-                document.querySelector('.android-btn').style.display = 'inline-block';
-            } else if (deviceType === 'ios') {
-                document.querySelector('.ios-btn').style.display = 'inline-block';
-            } else {
-                document.querySelector('.android-btn').style.display = 'inline-block';
-                document.querySelector('.ios-btn').style.display = 'inline-block';
-            }
-            
-            let storeRedirectTimeout;
-            
-            // 앱 설치 확인을 위해 URL 스킴으로 리다이렉트 시도
+
+            // 앱 실행 시도
             window.location.href = appUrlScheme;
-            
-            storeRedirectTimeout = setTimeout(() => {
+        
+            // 2.5초 후에도 페이지에 남아있으면 앱이 설치되지 않은 것으로 간주
+            const storeRedirectTimeout = setTimeout(() => {
                 document.querySelector('.loader-container').style.display = 'none';
                 document.querySelector('.store-buttons').style.display = 'block';
                 document.querySelector('.store-buttons').classList.add('fadeIn');
-                
+        
                 if (deviceType === 'android') {
                     document.getElementById('android-link').href = androidStoreLink;
                 } else if (deviceType === 'ios') {
                     document.getElementById('ios-link').href = iosAppStoreLink;
                 } else {
-                    // 알 수 없는 디바이스인 경우 두 링크 모두 설정
                     document.getElementById('android-link').href = androidStoreLink;
                     document.getElementById('ios-link').href = iosAppStoreLink;
                 }
             }, 2500);
-            
-            window.addEventListener('visibilitychange', function() {
+        
+            // 앱이 열려 페이지가 background로 가면 타이머 중단
+            document.addEventListener('visibilitychange', () => {
                 if (document.hidden) {
                     clearTimeout(storeRedirectTimeout);
                 }
             });
-        }
-        
+        }       
         window.onload = function() {
             setTimeout(redirectToStore, 1000);
         }
