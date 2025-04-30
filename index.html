@@ -121,41 +121,38 @@
     function tryOpenAppWithFallback() {
       const userLang = navigator.language || navigator.userLanguage;
       const countryCode = userLang.split('-')[1]?.toLowerCase() || 'kr';
-
+    
       const appUrlScheme = 'wyft://invite?ref=landing';
       const androidStoreLink = `https://play.google.com/store/apps/details?id=com.agspace.trkit&hl=${countryCode}&gl=${countryCode.toUpperCase()}`;
       const iosAppStoreLink = `https://apps.apple.com/${countryCode}/app/id1627691040`;
-
+    
       const userAgent = navigator.userAgent;
       const isAndroid = /android/i.test(userAgent);
       const isIOS = /iphone|ipad|ipod|macintosh.*mac os x/i.test(userAgent);
       const storeUrl = isAndroid ? androidStoreLink : isIOS ? iosAppStoreLink : 'https://yourfallback.url';
-
+    
       // 앱 열기 시도
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
       iframe.src = appUrlScheme;
       document.body.appendChild(iframe);
-
-      // fallback: 앱이 실행되지 않았을 경우 스토어로
+    
+      // fallback 타이머
       const fallbackTimeout = setTimeout(() => {
-        document.querySelector('.loader').style.display = 'none';
-        document.querySelector('.store-buttons').style.display = 'block';
-        document.querySelector('.store-buttons').classList.add('fadeIn');
-
-        const androidLink = document.getElementById('android-link');
-        const iosLink = document.getElementById('ios-link');
-        if (isAndroid) androidLink.href = androidStoreLink;
-        if (isIOS) iosLink.href = iosAppStoreLink;
+        // fallback 직접 실행
+        window.location.href = storeUrl;
       }, 2500);
-
-      // 앱이 열리면 페이지가 백그라운드로 이동하므로 타이머 제거
-      document.addEventListener('visibilitychange', () => {
+    
+      // 앱 실행되어 페이지가 숨겨지면 fallback 취소
+      const visibilityHandler = () => {
         if (document.hidden) {
           clearTimeout(fallbackTimeout);
+          document.removeEventListener('visibilitychange', visibilityHandler);
         }
-      });
+      };
+      document.addEventListener('visibilitychange', visibilityHandler);
     }
+
 
     window.onload = function () {
       setTimeout(tryOpenAppWithFallback, 500);
